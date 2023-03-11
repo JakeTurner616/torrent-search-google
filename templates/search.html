@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search google's torrent index</title>
+    <style>
+      h1 {
+        text-align: center;
+      }
+    
+      #container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+      }
+    
+      #search-form {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+      }
+    
+      input {
+        height: 44px;
+        border: 2px solid grey;
+        box-shadow: 0 1px 3px rgba(23, 23, 23, 0.24);
+        border-radius: 24px;
+        margin: 0 auto;
+        width: 690px;
+      }
+    
+      button[type="submit"] {
+        background-color: transparent;
+        border: none;
+        margin-left: 5px;
+        border: 2px inset grey;
+            background: none;
+            margin-left: 5px;
+            cursor: pointer;
+      }
+      button[type="submit"]:hover {
+            border: 2px solid blue;
+             box-shadow: 0 1px 3px rgba(23, 23, 23, 0.24);
+        }
+      #autocomplete {
+  z-index: 9999;
+  background-color: white;
+  max-height: 200px;
+  overflow-y: scroll;
+  border: none;
+  width: 690px;
+  position: absolute; /* add this line */
+  left: 50%; /* add this line */
+  transform: translateX(-53%); /* add this line */
+}
+    
+      #autocomplete li {
+        list-style-type: none;
+        padding: 5px;
+        cursor: pointer;
+      }
+    
+      #autocomplete li:hover {
+        background-color: #f1f1f1;
+      }
+    </style>
+    
+  
+</head>
+
+<body>
+  <h1>Search for Torrent Files</h1>
+  <div id="container">
+    <form id="search-form" action="/" method="POST">
+      <input type="text" name="query" id="query" autocomplete="off">
+      <button title="Submit" type="submit" style="margin-left: 5px;"><svg
+          xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg></button>
+    </form>
+    
+  </div>
+  <div id="autocomplete"></div>
+    <script>
+		const queryInput = document.getElementById('query');
+		const autocomplete = document.getElementById('autocomplete');
+		document.addEventListener('click', function(event) {
+			var autocompleteBox = document.getElementById('autocomplete');
+			var inputBox = document.getElementById('query');
+			if (event.target != autocompleteBox && event.target != inputBox) {
+				autocompleteBox.style.display = 'none';
+			}
+		});
+// Get autocomplete suggestions from Google API
+queryInput.addEventListener('input', () => {
+  const query = queryInput.value;
+  if (query.length >= 3) {
+    autocomplete.style.border = '1px solid gray';
+    const url = `https://suggestqueries.google.com/complete/search?callback=suggestCallBack&q=${query}&client=youtube`;
+    const script = document.createElement('script');
+    script.src = url;
+    document.head.appendChild(script);
+  } else {
+    autocomplete.style.border = 'none';
+    autocomplete.innerHTML = '';
+  }
+});
+
+		function suggestCallBack(data) {
+			const suggestions = data[1];
+			const html = suggestions.map(suggestion => `<li onclick="replaceQuery('${suggestion[0]}')">${suggestion[0]}</li>`).join('');
+			autocomplete.innerHTML = html;
+		}
+
+		function replaceQuery(query) {
+			queryInput.value = query;
+			autocomplete.innerHTML = '';
+			document.forms[0].submit(); // submit the form
+		}
+
+		// Display autocomplete menu when input box is clicked
+		queryInput.addEventListener('click', () => {
+  if (queryInput.value.length >= 3) {
+    autocomplete.style.border = '1px solid gray';
+  }
+  autocomplete.style.display = 'block';
+});
+    </script>
+</body>
+
+</html>
